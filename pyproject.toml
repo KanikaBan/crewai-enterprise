@@ -1,0 +1,23 @@
+[project]
+name = "conversational_innovation_assistant_with_jira_integration"
+version = "0.1.0"
+description = "conversational_innovation_assistant_with_jira_integration using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[tools]>=0.177.0,<1.0.0"
+]
+
+[project.scripts]
+conversational_innovation_assistant_with_jira_integration = "conversational_innovation_assistant_with_jira_integration.main:run"
+run_crew = "conversational_innovation_assistant_with_jira_integration.main:run"
+train = "conversational_innovation_assistant_with_jira_integration.main:train"
+replay = "conversational_innovation_assistant_with_jira_integration.main:replay"
+test = "conversational_innovation_assistant_with_jira_integration.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
