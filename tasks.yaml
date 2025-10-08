@@ -1,0 +1,103 @@
+---
+detect_project_intent_context:
+  description: Greet {user_id} and analyze their {project_idea} to determine if it's
+    a new project or similar to existing ones. Check conversation history and company
+    project databases to identify potential duplicates or variations. If a similar
+    project exists, ask clarifying questions like 'Your idea is similar to Project
+    X. Is it a variation or completely new?' If it's identical, politely inform the
+    user. If it's new or sufficiently different, initiate a new project session and
+    gather basic project context.
+  expected_output: 'A conversational response to the user that either: 1) Welcomes
+    them to discuss a confirmed new project, or 2) Asks clarifying questions about
+    similarities to existing projects, or 3) Politely explains that the project already
+    exists. Include a brief context summary for the next agents about the conversation
+    status and any initial project details gathered.'
+  agent: intent_context_manager_agent
+quick_research_check:
+  description: Conduct a focused search to verify if similar projects to {project_idea}
+    exist internally or externally. Search company databases, repositories, and external
+    sources efficiently. Provide a concise summary of findings to support the Intent
+    Manager and Validation Agent. Focus on identifying potential duplicates or close
+    similarities rather than comprehensive competitive analysis.
+  expected_output: 'A concise research summary in 2-3 paragraphs covering: existing
+    similar internal projects, external competitors or solutions, and a clear recommendation
+    on whether this idea appears to be unique enough to proceed. Include specific
+    project names or competitor examples if found.'
+  agent: research_agent
+  context:
+  - detect_project_intent_context
+gather_project_details:
+  description: 'Have a friendly conversation with {user_id} to gather essential details
+    about {project_idea}. Ask only 4-5 concise, targeted questions: What is the main
+    goal of this project? What is the expected budget or resources? Who is the target
+    user or audience? Any important constraints or deadlines? What success would look
+    like? Validate the feasibility based on their responses and provide encouraging
+    yet realistic conversational feedback.'
+  expected_output: 'A conversational response to the user that includes: the key project
+    details gathered through questions, a brief feasibility assessment in friendly
+    language, and either encouragement to proceed or gentle suggestions for refinement.
+    Format as if speaking directly to the employee, not as a formal report.'
+  agent: validation_agent
+  context:
+  - detect_project_intent_context
+  - quick_research_check
+create_technical_overview:
+  description: Based on the project details gathered, create a concise technical plan
+    for {project_idea}. Focus on recommended tech stack, basic system architecture,
+    key components, and a rough development timeline. Keep technical details accessible
+    and avoid overwhelming complexity. Aim for a practical overview that development
+    teams can understand and act upon.
+  expected_output: 'A clear technical overview in 3-4 paragraphs covering: recommended
+    technology stack with brief justification, basic system architecture and key components,
+    estimated development timeline with major phases, and primary technical considerations
+    or risks. Keep language accessible for non-technical stakeholders.'
+  agent: technical_planning_agent
+  context:
+  - quick_research_check
+  - gather_project_details
+create_business_summary:
+  description: Develop a lightweight business summary for {project_idea} based on
+    the gathered project details. Focus on potential ROI, user benefits, key success
+    metrics, and resource requirements. Create a practical business overview that
+    can guide decision-making without overwhelming detail. Keep the analysis concise
+    and actionable.
+  expected_output: 'A concise business summary in 3-4 paragraphs covering: potential
+    ROI and value proposition, target users and expected benefits, key success metrics
+    and measurements, and estimated resource requirements (team, budget, timeline).
+    Format for easy executive review and decision-making.'
+  agent: business_strategy_agent
+  context:
+  - quick_research_check
+  - gather_project_details
+  - create_technical_overview
+create_conversational_project_summary:
+  description: Synthesize all findings into a conversational, comprehensive project
+    summary for {project_idea}. Combine the research check, project details, technical
+    overview, and business summary into a cohesive narrative that feels personal and
+    engaging while covering all essential information. Structure for executive review
+    while maintaining the friendly tone of the conversation.
+  expected_output: 'A comprehensive yet conversational project summary that includes:
+    Executive Overview, Project Details (goal, users, constraints), Research Findings,
+    Technical Approach, Business Case, Resource Requirements, Timeline, Success Metrics,
+    and Recommended Next Steps. Maintain a friendly, personal tone throughout while
+    ensuring professional completeness.'
+  agent: project_structuring_agent
+  context:
+  - quick_research_check
+  - gather_project_details
+  - create_technical_overview
+  - create_business_summary
+generate_jira_ticket:
+  description: Automatically create a well-structured Jira ticket for the approved
+    {project_idea} project. First search existing Jira issues to ensure no duplicate
+    tickets exist. If the project is approved and unique, create a comprehensive Jira
+    ticket including project name, detailed description, technical requirements, business
+    objectives, budget information, timeline, and suggested team assignments based
+    on all gathered project information.
+  expected_output: Confirmation of successful Jira ticket creation including the ticket
+    ID, summary, and key details. If a duplicate is found, report the existing ticket
+    information. Include the ticket URL and next steps for project stakeholders to
+    follow up on the created ticket.
+  agent: jira_ticket_generator_agent
+  context:
+  - create_conversational_project_summary
